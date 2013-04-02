@@ -4,7 +4,7 @@ from urlparse import urljoin
 from django import forms
 from django.conf import settings
 
-from redactor import fields, widgets
+from . import fields, widgets
 
 
 class MyForm(forms.Form):
@@ -63,25 +63,45 @@ class RedactorTests(unittest.TestCase):
         form = MyForm()
         html = form.as_p()
         js = (
-            'Redactor.register({"lang": "en", "load": true, "autoresize": true, '
-            '"focus": false, "path": false});'
+            """
+            Redactor.register({
+                "lang": "en",
+                "load": true,
+                "autoresize": true,
+                "focus": false,
+                "path": false
+            });
+            """
         )
         el = (
-            '<textarea id="id_text" class="redactor_content" rows="10" '
-            'cols="40" name="text">'
+            """
+            <textarea
+                id="id_text"
+                class="redactor_content"
+                rows="10"
+                cols="40"
+                name="text">
+            """
         )
         self.assertTrue(js in html)
         self.assertTrue(el in html)
-        self.assertFalse('django_admin.css' in "".join(form.media.render_css()))
+        self.assertFalse('django_admin.css' in
+                "".join(form.media.render_css()))
 
         admin_form = MyAdminForm()
         admin_html = admin_form.as_p()
-        self.assertTrue('django_admin.css' in "".join(admin_form.media.render_css()))
+        self.assertTrue('django_admin.css' in
+                "".join(admin_form.media.render_css()))
+        self.assertTrue('redactor_box' in admin_html)
+        self.assertTrue('redactor_frame' in admin_html)
 
         spanish_form = MySpanishForm()
         spanish_html = spanish_form.as_p()
         self.assertTrue('"lang": "es"' in spanish_html)
-        base_url = settings.STATIC_URL = None and settings.MEDIA_URL or settings.STATIC_URL
+        base_url = settings.STATIC_URL = None and \
+                settings.MEDIA_URL or \
+                settings.STATIC_URL
         css_url = urljoin(base_url, "styles/bodycopy.css")
         self.assertTrue('"css": "%s"' % css_url in spanish_html)
-        self.assertFalse('django_admin.css' in "".join(spanish_form.media.render_css()))
+        self.assertFalse('django_admin.css' in \
+                "".join(spanish_form.media.render_css()))

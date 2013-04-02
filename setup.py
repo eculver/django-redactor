@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from os import path
 from distutils.core import setup
+from setuptools import find_packages
 
 
 version = '1.2.2'
@@ -18,9 +18,7 @@ classifiers = [
     "Framework :: Django",
 ]
 
-root_dir = path.dirname(__file__)
-long_desc = open(root_dir + '/README.rst').read()
-
+long_desc = open('README.rst').read()
 
 setup(
     name='django-redactor',
@@ -29,7 +27,7 @@ setup(
     author='James Stevenson',
     author_email='james.m.stevenson at gmail dot com',
     license='CC licence, see LICENSE.txt',
-    packages=['redactor'],
+    packages=find_packages(),
     description=(
         'Integrates the Redactor Javascript WYSIWYG editor with Django.'
     ),

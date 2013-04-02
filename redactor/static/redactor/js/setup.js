@@ -23,4 +23,4 @@ var Redactor = (function ($) {
             redactor_attrs.push(attrs);
         }
     };
-})(jQuery);
+}(jQuery));

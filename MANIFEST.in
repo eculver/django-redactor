@@ -1,1 +1,1 @@
-recursive-include redactor *.css *.html *.js *.png
+recursive-include redactor *.py *.css *.html *.js *.png

@@ -10,8 +10,8 @@ class RedactorEditor(Textarea):
     """
     A widget that renders a <textarea> element as a Redactor rich tech editor.
 
-    This widget has three additional keyword arguments that a typical ``Textarea``
-    wiget does not. They are:
+    This widget has three additional keyword arguments that a typical
+    ``Textarea`` wiget does not. They are:
 
     ``redactor_settings`` - a dictionary of named settings and values. See the
     Redactor `API docs <http://redactorjs.com/docs/settings>`_ for available
@@ -29,11 +29,13 @@ class RedactorEditor(Textarea):
 
         >>> RedactorEditor(
                 redactor_css = 'styles/bodycopy.css',
+                redactor_plugins = ['plugins/awesome.js', ..., ],
                 redactor_settings={
                     'lang': 'en',
                     'load': True,
                     'path': False,
                     'focus': False,
+                    'plugins': ['awesome']
                 }
             )
 
@@ -43,7 +45,11 @@ class RedactorEditor(Textarea):
 
     """
 
-    script_tag = '<script type="text/javascript">Redactor.register(%s);</script>'
+    script_tag = """
+    <script type="text/javascript">
+        Redactor.register(%s);
+    </script>
+    """
 
     def __init__(self, attrs=None, redactor_css=None, redactor_settings=None):
         super(RedactorEditor, self).__init__(attrs=attrs)
@@ -52,14 +58,17 @@ class RedactorEditor(Textarea):
             'load': True,
             'path': False,
             'focus': False,
-            'autoresize': True
+            'autoresize': True,
+            'plugins': ['media'],
         }
         self.redactor_settings = redactor_settings or default_settings
         if redactor_css:
-            self.redactor_settings['css'] = self.get_redactor_css_absolute_path(redactor_css)
+            self.redactor_settings['css'] = \
+                    self.get_redactor_css_absolute_path(redactor_css)
 
     def get_redactor_css_absolute_path(self, path):
-        if path.startswith(u'http://') or path.startswith(u'https://') or path.startswith(u'/'):
+        if path.startswith(u'http://') or path.startswith(u'https://') or \
+                path.startswith(u'/'):
             return path
         else:
             if settings.STATIC_URL is None:
@@ -71,22 +80,34 @@ class RedactorEditor(Textarea):
     @property
     def media(self):
         js = (
-            'django-redactor/lib/jquery-1.7.min.js',
-            'django-redactor/redactor/redactor.min.js',
-            'django-redactor/redactor/setup.js',
+            'lib/jquery-1.8.2.min.js',
+            'lib/handlebars.js',
+            'redactor/js/redactor.js',
+            'redactor/js/setup.js',
         )
+
+        for plugin in self.redactor_settings['plugins']:
+            js = js + ('redactor/js/plugins/%s.js' % plugin,)
+
         if self.redactor_settings['lang'] != 'en':
-            js += ('django-redactor/redactor/langs/%s.js' % self.redactor_settings['lang'],)
+            js = js + ('redactor/js/langs/%s.js' % \
+                    self.redactor_settings['lang'],)
+
         css = {
             'screen': [
-                'django-redactor/redactor/css/redactor.css',
+                'redactor/css/redactor.css',
             ]
         }
+
+        for plugin in self.redactor_settings['plugins']:
+            css['screen'].append('redactor/css/plugins/%s.css' % plugin)
+
         return Media(css=css, js=js)
 
     def render(self, name, value, attrs=None):
         html_class_name = attrs.get('class', '')
-        redactor_class = html_class_name and " redactor_content" or "redactor_content"
+        redactor_class = html_class_name and " redactor_content" or \
+                "redactor_content"
         html_class_name += redactor_class
         attrs['class'] = html_class_name
         html = super(RedactorEditor, self).render(name, value, attrs=attrs)
@@ -101,16 +122,27 @@ class AdminRedactorEditor(RedactorEditor):
     @property
     def media(self):
         js = (
-            'django-redactor/lib/jquery-1.7.min.js',
-            'django-redactor/redactor/redactor.min.js',
-            'django-redactor/redactor/setup.js',
+            'lib/jquery-1.8.2.min.js',
+            'lib/handlebars.js',
+            'redactor/js/redactor.js',
+            'redactor/js/setup.js',
         )
+
+        for plugin in self.redactor_settings['plugins']:
+            js = js + ('redactor/js/plugins/%s.js' % plugin,)
+
         if self.redactor_settings['lang'] != 'en':
-            js += ('django-redactor/redactor/langs/%s.js' % self.redactor_settings['lang'],)
+            js = js + ('redactor/js/langs/%s.js' %
+                    self.redactor_settings['lang'],)
+
         css = {
             'screen': [
-                'django-redactor/redactor/css/redactor.css',
-                'django-redactor/redactor/css/django_admin.css',
+                'redactor/css/redactor.css',
+                'redactor/css/django_admin.css',
             ]
         }
+
+        for plugin in self.redactor_settings['plugins']:
+            css['screen'].append('redactor/css/plugins/%s.css' % plugin)
+
         return Media(css=css, js=js)

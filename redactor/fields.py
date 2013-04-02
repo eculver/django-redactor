@@ -1,6 +1,6 @@
 from django.forms.fields import CharField
 
-from redactor.widgets import RedactorEditor
+from .widgets import RedactorEditor
 
 
 class RedactorField(CharField):
@@ -21,7 +21,9 @@ class RedactorField(CharField):
 
     def __init__(self, *args, **kwargs):
         widget_kwargs = {}
-        # Remove extra field kwargs: they will be used to instantiate the widget.
+
+        # remove extra field kwargs: they will be used to instantiate the
+        # widget.
         for extra_kwarg in ('redactor_css', 'redactor_settings'):
             if extra_kwarg in kwargs:
                 widget_kwargs[extra_kwarg] = kwargs.pop(extra_kwarg)
