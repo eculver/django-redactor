@@ -4,7 +4,7 @@ from distutils.core import setup
 from setuptools import find_packages
 
 
-version = '1.2.2'
+version = '1.2.2-eculver'
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
